@@ -76,9 +76,14 @@ const TARGET_LEDGERS_PER_ROOM = TARGET_LEDGERS / TARGET_ROOMS // 10K
 
 // https://2ality.com/2019/11/nodejs-streams-async-iteration.html#writing-to-writable-streams
 
+const writeStreamReg: Record<string, Writeable> = {}
+
 class Writeable {
+  symbol: symbol = Symbol()
+
 	constructor(public writeStream: WriteStream) {
 		this.writeStream.on('error', (err) => console.log(err))
+    writeStreamReg[this.symbol as unknown as string] = this
 	}
 
 	async write(chunk: string) {
@@ -87,7 +92,8 @@ class Writeable {
 		}
 	}
 
-  async finished() {
+  async finish() {
+    delete writeStreamReg[this.symbol as unknown as string]
     this.writeStream.end();
     await pFinished(this.writeStream)
   }
@@ -102,7 +108,7 @@ const main = async () => {
 		const writeable = new Writeable(
 			createWriteStream(
 				//'/root/work/data/dgraph/scripts/load-test/json/' +
-				NameString(SubjectType.Hotel, iHotel) + '.json', { encoding: 'utf8'}
+				NameString(SubjectType.Hotel, iHotel) + '.json', { encoding: 'utf8', flags: 'a' }
 			)
 		)
 		await writeable.write('{"set":[')
@@ -129,11 +135,33 @@ const main = async () => {
 			)
 		)
 		await writeable.write(']}')
-    await writeable.finished()
+    await writeable.finish()
 
 		console.log('iHotel:', iHotel)
 		iHotel++
 	}
 }
+
+process.stdin.resume();//so the program will not close instantly
+
+function exitHandler(options, exitCode) {
+    Object.values(writeStreamReg).map(v => v.finish())
+    if (options.cleanup) console.log('clean');
+    if (exitCode || exitCode === 0) console.log(exitCode);
+    if (options.exit) process.exit();
+}
+
+//do something when app is closing
+process.on('exit', exitHandler.bind(null,{cleanup:true}));
+
+//catches ctrl+c event
+process.on('SIGINT', exitHandler.bind(null, {exit:true}));
+
+// catches "kill pid" (for example: nodemon restart)
+process.on('SIGUSR1', exitHandler.bind(null, {exit:true}));
+process.on('SIGUSR2', exitHandler.bind(null, {exit:true}));
+
+//catches uncaught exceptions
+process.on('uncaughtException', exitHandler.bind(null, {exit:true}));
 
 main()

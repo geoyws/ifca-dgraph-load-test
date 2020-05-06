@@ -132,20 +132,20 @@ var Writeable = /** @class */ (function () {
     return Writeable;
 }());
 var main = function () { return __awaiter(void 0, void 0, void 0, function () {
-    var iHotel, writeable, iRoom;
+    var iHotel, writeable, iRoom, iLedger;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
                 iHotel = 1;
                 _a.label = 1;
             case 1:
-                if (!(iHotel <= TARGET_HOTELS)) return [3 /*break*/, 10];
+                if (!(iHotel <= TARGET_HOTELS)) return [3 /*break*/, 13];
                 // 1 JSON file per Hotel, so just one writeStream
                 // streams are important when writing to large files
                 console.log(__dirname);
                 writeable = new Writeable(fs_1.createWriteStream(
                 //'/root/work/data/dgraph/scripts/load-test/json/' +
-                NameString(SubjectType.Hotel, iHotel) + '.json', { encoding: 'utf8' }));
+                NameString(SubjectType.Hotel, iHotel) + '.json', { encoding: 'utf8', flags: 'a' }));
                 return [4 /*yield*/, writeable.write('{"set":[')];
             case 2:
                 _a.sent();
@@ -155,46 +155,42 @@ var main = function () { return __awaiter(void 0, void 0, void 0, function () {
                 iRoom = 1;
                 _a.label = 4;
             case 4:
-                if (!(iRoom <= TARGET_ROOMS_PER_HOTEL)) return [3 /*break*/, 6];
-                return [4 /*yield*/, writeable.write(JSON.stringify(Room(iRoom, iHotel)) + ',')
-                    //let iLedger = 1
-                    //while (iLedger <= TARGET_LEDGERS_PER_ROOM) {
-                    //	await writeable.write(
-                    //		JSON.stringify(Ledger(iLedger, iHotel, iRoom)) + ','
-                    //	)
-                    //	//console.log('iLedger:', iLedger)
-                    //	iLedger++
-                    //}
-                ];
+                if (!(iRoom <= TARGET_ROOMS_PER_HOTEL)) return [3 /*break*/, 9];
+                return [4 /*yield*/, writeable.write(JSON.stringify(Room(iRoom, iHotel)) + ',')];
             case 5:
                 _a.sent();
-                //let iLedger = 1
-                //while (iLedger <= TARGET_LEDGERS_PER_ROOM) {
-                //	await writeable.write(
-                //		JSON.stringify(Ledger(iLedger, iHotel, iRoom)) + ','
-                //	)
-                //	//console.log('iLedger:', iLedger)
-                //	iLedger++
-                //}
+                iLedger = 1;
+                _a.label = 6;
+            case 6:
+                if (!(iLedger <= TARGET_LEDGERS_PER_ROOM)) return [3 /*break*/, 8];
+                return [4 /*yield*/, writeable.write(JSON.stringify(Ledger(iLedger, iHotel, iRoom)) + ',')
+                    //console.log('iLedger:', iLedger)
+                ];
+            case 7:
+                _a.sent();
+                //console.log('iLedger:', iLedger)
+                iLedger++;
+                return [3 /*break*/, 6];
+            case 8:
                 console.log('iRoom:', iRoom);
                 iRoom++;
                 return [3 /*break*/, 4];
-            case 6: 
+            case 9: 
             // just to make sure we don't have a comma at the end of the list, we put in an extra 1 ledger per Hotel
             return [4 /*yield*/, writeable.write(JSON.stringify(Ledger(TARGET_LEDGERS_PER_ROOM + 1, iHotel, TARGET_ROOMS_PER_HOTEL)))];
-            case 7:
+            case 10:
                 // just to make sure we don't have a comma at the end of the list, we put in an extra 1 ledger per Hotel
                 _a.sent();
                 return [4 /*yield*/, writeable.write(']}')];
-            case 8:
+            case 11:
                 _a.sent();
                 return [4 /*yield*/, writeable.finished()];
-            case 9:
+            case 12:
                 _a.sent();
                 console.log('iHotel:', iHotel);
                 iHotel++;
                 return [3 /*break*/, 1];
-            case 10: return [2 /*return*/];
+            case 13: return [2 /*return*/];
         }
     });
 }); };

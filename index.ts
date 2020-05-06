@@ -70,7 +70,7 @@ const TARGET_ROOMS_PER_HOTEL = 100
 const TARGET_ROOMS = TARGET_HOTELS * TARGET_ROOMS_PER_HOTEL // 20K
 
 const TARGET_LEDGERS = _200M
-const TARGET_LEDGERS_PER_ROOM = TARGET_LEDGERS / TARGET_ROOMS // 10K
+const TARGET_LEDGERS_PER_ROOM = 10 // TARGET_LEDGERS / TARGET_ROOMS // 10K
 
 //const MAX_ENTRIES_PER_JSON_FILE = _1M // basically 1 JSON file per Hotel
 
@@ -141,6 +141,8 @@ const main = async () => {
 		console.log('iHotel:', iHotel)
 		iHotel++
 	}
+  
+  process.exit()
 }
 
 process.stdin.resume();//so the program will not close instantly

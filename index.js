@@ -98,6 +98,7 @@ var TARGET_LEDGERS_PER_ROOM = TARGET_LEDGERS / TARGET_ROOMS; // 10K
 var Writeable = /** @class */ (function () {
     function Writeable(writeStream) {
         this.writeStream = writeStream;
+        this.writeStream.on('error', function (err) { return console.log(err); });
     }
     Writeable.prototype.write = function (chunk) {
         return __awaiter(this, void 0, void 0, function () {
@@ -114,20 +115,37 @@ var Writeable = /** @class */ (function () {
             });
         });
     };
+    Writeable.prototype.finished = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        this.writeStream.end();
+                        return [4 /*yield*/, pFinished(this.writeStream)];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
     return Writeable;
 }());
 var main = function () { return __awaiter(void 0, void 0, void 0, function () {
-    var iHotel, writeable, iRoom, iLedger;
+    var iHotel, writeable, iRoom;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
                 iHotel = 1;
                 _a.label = 1;
             case 1:
-                if (!(iHotel <= TARGET_HOTELS)) return [3 /*break*/, 12];
-                writeable = new Writeable(fs_1.createWriteStream('~/work/data/dgraph/scripts/load-test/json/' +
-                    NameString(SubjectType.Hotel, iHotel) +
-                    '.json'));
+                if (!(iHotel <= TARGET_HOTELS)) return [3 /*break*/, 10];
+                // 1 JSON file per Hotel, so just one writeStream
+                // streams are important when writing to large files
+                console.log(__dirname);
+                writeable = new Writeable(fs_1.createWriteStream(
+                //'/root/work/data/dgraph/scripts/load-test/json/' +
+                NameString(SubjectType.Hotel, iHotel) + '.json', { encoding: 'utf8' }));
                 return [4 /*yield*/, writeable.write('{"set":[')];
             case 2:
                 _a.sent();
@@ -137,37 +155,46 @@ var main = function () { return __awaiter(void 0, void 0, void 0, function () {
                 iRoom = 1;
                 _a.label = 4;
             case 4:
-                if (!(iRoom <= TARGET_ROOMS_PER_HOTEL)) return [3 /*break*/, 9];
-                return [4 /*yield*/, writeable.write(JSON.stringify(Room(iRoom, iHotel)) + ',')];
+                if (!(iRoom <= TARGET_ROOMS_PER_HOTEL)) return [3 /*break*/, 6];
+                return [4 /*yield*/, writeable.write(JSON.stringify(Room(iRoom, iHotel)) + ',')
+                    //let iLedger = 1
+                    //while (iLedger <= TARGET_LEDGERS_PER_ROOM) {
+                    //	await writeable.write(
+                    //		JSON.stringify(Ledger(iLedger, iHotel, iRoom)) + ','
+                    //	)
+                    //	//console.log('iLedger:', iLedger)
+                    //	iLedger++
+                    //}
+                ];
             case 5:
                 _a.sent();
-                iLedger = 1;
-                _a.label = 6;
-            case 6:
-                if (!(iLedger <= TARGET_LEDGERS_PER_ROOM)) return [3 /*break*/, 8];
-                return [4 /*yield*/, writeable.write(JSON.stringify(Ledger(iLedger, iHotel, iRoom)) + ',')];
-            case 7:
-                _a.sent();
-                console.log('iLedger:', iLedger);
-                iLedger++;
-                return [3 /*break*/, 6];
-            case 8:
+                //let iLedger = 1
+                //while (iLedger <= TARGET_LEDGERS_PER_ROOM) {
+                //	await writeable.write(
+                //		JSON.stringify(Ledger(iLedger, iHotel, iRoom)) + ','
+                //	)
+                //	//console.log('iLedger:', iLedger)
+                //	iLedger++
+                //}
                 console.log('iRoom:', iRoom);
                 iRoom++;
                 return [3 /*break*/, 4];
-            case 9: 
+            case 6: 
             // just to make sure we don't have a comma at the end of the list, we put in an extra 1 ledger per Hotel
             return [4 /*yield*/, writeable.write(JSON.stringify(Ledger(TARGET_LEDGERS_PER_ROOM + 1, iHotel, TARGET_ROOMS_PER_HOTEL)))];
-            case 10:
+            case 7:
                 // just to make sure we don't have a comma at the end of the list, we put in an extra 1 ledger per Hotel
                 _a.sent();
                 return [4 /*yield*/, writeable.write(']}')];
-            case 11:
+            case 8:
+                _a.sent();
+                return [4 /*yield*/, writeable.finished()];
+            case 9:
                 _a.sent();
                 console.log('iHotel:', iHotel);
                 iHotel++;
                 return [3 /*break*/, 1];
-            case 12: return [2 /*return*/];
+            case 10: return [2 /*return*/];
         }
     });
 }); };

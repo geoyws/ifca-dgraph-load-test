@@ -86,6 +86,11 @@ class Writeable {
 			await once(this.writeStream, 'drain')
 		}
 	}
+
+  async finished() {
+    this.writeStream.end();
+    await pFinished(this.writeStream)
+  }
 }
 
 const main = async () => {
@@ -93,11 +98,11 @@ const main = async () => {
 	while (iHotel <= TARGET_HOTELS) {
 		// 1 JSON file per Hotel, so just one writeStream
 		// streams are important when writing to large files
+		console.log(__dirname)
 		const writeable = new Writeable(
 			createWriteStream(
-				'~/work/data/dgraph/scripts/load-test/json/' +
-					NameString(SubjectType.Hotel, iHotel) +
-					'.json'
+				//'/root/work/data/dgraph/scripts/load-test/json/' +
+				NameString(SubjectType.Hotel, iHotel) + '.json', { encoding: 'utf8'}
 			)
 		)
 		await writeable.write('{"set":[')
@@ -124,6 +129,7 @@ const main = async () => {
 			)
 		)
 		await writeable.write(']}')
+    await writeable.finished()
 
 		console.log('iHotel:', iHotel)
 		iHotel++

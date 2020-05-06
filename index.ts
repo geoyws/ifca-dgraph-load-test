@@ -1,4 +1,10 @@
-import { createWriteStream } from 'fs'
+import { WriteStream, createWriteStream } from 'fs'
+
+import { finished } from 'stream'
+import { once } from 'events'
+import { promisify } from 'util'
+
+const pFinished = promisify(finished)
 
 const randomNumber = (min: number, max: number): number => {
 	// min and max included
@@ -58,7 +64,7 @@ const Ledger = (i: number, iHotel: number, iRoom: number) => ({
 const _200M = 200000000
 const _1M = 1000000
 
-const TARGET_HOTELS = 200
+const TARGET_HOTELS = 1 //200
 
 const TARGET_ROOMS_PER_HOTEL = 100
 const TARGET_ROOMS = TARGET_HOTELS * TARGET_ROOMS_PER_HOTEL // 20K
@@ -68,39 +74,57 @@ const TARGET_LEDGERS_PER_ROOM = TARGET_LEDGERS / TARGET_ROOMS // 10K
 
 //const MAX_ENTRIES_PER_JSON_FILE = _1M // basically 1 JSON file per Hotel
 
-const main = () => {
+// https://2ality.com/2019/11/nodejs-streams-async-iteration.html#writing-to-writable-streams
+
+class Writeable {
+	constructor(public writeStream: WriteStream) {
+		this.writeStream.on('error', (err) => console.log(err))
+	}
+
+	async write(chunk: string) {
+		if (!this.writeStream.write(chunk)) {
+			await once(this.writeStream, 'drain')
+		}
+	}
+}
+
+const main = async () => {
 	let iHotel = 1
-	while (iHotel < TARGET_HOTELS) {
+	while (iHotel <= TARGET_HOTELS) {
 		// 1 JSON file per Hotel, so just one writeStream
 		// streams are important when writing to large files
-		const stream = createWriteStream(
-			'~/work/data/dgraph/scripts/load-test/json/' +
-				NameString(SubjectType.Hotel, iHotel) +
-				'.json'
-		)
-		stream.on('open', () => {
-			stream.write('{"set":[')
-			stream.write(JSON.stringify(Hotel(iHotel)) + ',')
-			let iRoom = 1
-			while (iRoom < TARGET_ROOMS_PER_HOTEL) {
-				stream.write(JSON.stringify(Room(iRoom, iHotel)) + ',')
-				let iLedger = 1
-				while (iLedger < TARGET_LEDGERS_PER_ROOM) {
-					stream.write(JSON.stringify(Ledger(iLedger, iHotel, iRoom)) + ',')
-					console.log('iLedger:', iLedger)
-					iLedger++
-				}
-				console.log('iRoom:', iRoom)
-				iRoom++
-			}
-			// just to make sure we don't have a comma at the end of the list, we put in an extra 1 ledger per Hotel
-			stream.write(
-				JSON.stringify(
-					Ledger(TARGET_LEDGERS_PER_ROOM + 1, iHotel, TARGET_ROOMS_PER_HOTEL)
-				)
+		const writeable = new Writeable(
+			createWriteStream(
+				'~/work/data/dgraph/scripts/load-test/json/' +
+					NameString(SubjectType.Hotel, iHotel) +
+					'.json'
 			)
-			stream.write(']}')
-		})
+		)
+		await writeable.write('{"set":[')
+		await writeable.write(JSON.stringify(Hotel(iHotel)) + ',')
+
+		let iRoom = 1
+		while (iRoom <= TARGET_ROOMS_PER_HOTEL) {
+			await writeable.write(JSON.stringify(Room(iRoom, iHotel)) + ',')
+			let iLedger = 1
+			while (iLedger <= TARGET_LEDGERS_PER_ROOM) {
+				await writeable.write(
+					JSON.stringify(Ledger(iLedger, iHotel, iRoom)) + ','
+				)
+				//console.log('iLedger:', iLedger)
+				iLedger++
+			}
+			console.log('iRoom:', iRoom)
+			iRoom++
+		}
+		// just to make sure we don't have a comma at the end of the list, we put in an extra 1 ledger per Hotel
+		await writeable.write(
+			JSON.stringify(
+				Ledger(TARGET_LEDGERS_PER_ROOM + 1, iHotel, TARGET_ROOMS_PER_HOTEL)
+			)
+		)
+		await writeable.write(']}')
+
 		console.log('iHotel:', iHotel)
 		iHotel++
 	}

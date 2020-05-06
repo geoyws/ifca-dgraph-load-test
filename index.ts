@@ -87,8 +87,10 @@ const main = () => {
 				let iLedger = 1
 				while (iLedger < TARGET_LEDGERS_PER_ROOM) {
 					stream.write(JSON.stringify(Ledger(iLedger, iHotel, iRoom)) + ',')
+					console.log('iLedger:', iLedger)
 					iLedger++
 				}
+				console.log('iRoom:', iRoom)
 				iRoom++
 			}
 			// just to make sure we don't have a comma at the end of the list, we put in an extra 1 ledger per Hotel
@@ -99,6 +101,7 @@ const main = () => {
 			)
 			stream.write(']}')
 		})
+		console.log('iHotel:', iHotel)
 		iHotel++
 	}
 }

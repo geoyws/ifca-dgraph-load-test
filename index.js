@@ -71,14 +71,17 @@ var main = function () {
                 var iLedger = 1;
                 while (iLedger < TARGET_LEDGERS_PER_ROOM) {
                     stream.write(JSON.stringify(Ledger(iLedger, iHotel, iRoom)) + ',');
+                    console.log('iLedger:', iLedger);
                     iLedger++;
                 }
+                console.log('iRoom:', iRoom);
                 iRoom++;
             }
             // just to make sure we don't have a comma at the end of the list, we put in an extra 1 ledger per Hotel
             stream.write(JSON.stringify(Ledger(TARGET_LEDGERS_PER_ROOM + 1, iHotel, TARGET_ROOMS_PER_HOTEL)));
             stream.write(']}');
         });
+        console.log('iHotel:', iHotel);
         iHotel++;
     };
     while (iHotel < TARGET_HOTELS) {

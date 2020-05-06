@@ -105,3 +105,5 @@ const main = () => {
 		iHotel++
 	}
 }
+
+main()

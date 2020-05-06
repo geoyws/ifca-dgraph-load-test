@@ -16,64 +16,89 @@ const randomDate = (start: Date, end: Date) => {
 const randomRelevantDate = () =>
 	randomDate(new Date('1995-01-01T08:00:00+08:00'), new Date())
 
+enum SubjectType {
+	Hotel = 'Hotel',
+	Room = 'Room',
+	Ledger = 'Ledger',
+}
+const UIDString = (type: string, i: number) => '_:' + type + i
+
+const UIDObj = (type: string, i: number) => ({
+	uid: UIDString(type, i),
+})
+
+const NameString = (type: string, i: number) => type + i
+
 // 200 Hotels altogether
-const Hotel = (i: number, name: string) => ({
-	uid: '_:hotel' + i,
-	name,
+const Hotel = (i: number) => ({
+	uid: UIDString(SubjectType.Hotel, i),
+	name: NameString(SubjectType.Hotel, i),
 })
 
 // 200 * 100 = 20,000 Rooms altogether
 // 100 Rooms per Hotel
-const Room = (i: number, hotel: string, name: string) => ({
-	uid: '_:room' + i,
-	hotel,
-	name,
+const Room = (i: number, iHotel: number) => ({
+	uid: UIDString(SubjectType.Room, i),
+	hotel: UIDObj(SubjectType.Hotel, iHotel),
+	name: NameString(SubjectType.Room, i),
 })
 
 // 200M Ledgers altogether
 // 200M / 200 = 1M Ledgers per Hotel
 // 200M / (200 * 100) = 10K Ledgers per Room
-const Ledger = (i: number, hotel: string, room: string) => ({
-	uid: '_:ledger' + i,
-	hotel,
-	room,
+const Ledger = (i: number, iHotel: number, iRoom: number) => ({
+	uid: UIDString(SubjectType.Ledger, i),
+	hotel: UIDObj(SubjectType.Hotel, iHotel),
+	room: UIDObj(SubjectType.Room, iRoom),
 	createdTs: randomRelevantDate(),
 	amount: randomAmount(),
 })
 
 // to save us from typos
 const _200M = 200000000
-const _2M = 2000000
+const _1M = 1000000
 
-let hotels = 200 // default value, param specifiable
+const TARGET_HOTELS = 200
 
-let roomPerHotel = 100
-let rooms = hotels * roomPerHotel
+const TARGET_ROOMS_PER_HOTEL = 100
+const TARGET_ROOMS = TARGET_HOTELS * TARGET_ROOMS_PER_HOTEL // 20K
 
-let ledgers = _200M
-let ledgersPerRoom = ledgers / rooms
+const TARGET_LEDGERS = _200M
+const TARGET_LEDGERS_PER_ROOM = TARGET_LEDGERS / TARGET_ROOMS // 10K
 
-let iHotel = 0
-let iRoom = 0
-let iLedger = 0
-let i_JSONFile = 1
-let EntriesPerJSONFile = _2M // each
+//const MAX_ENTRIES_PER_JSON_FILE = _1M // basically 1 JSON file per Hotel
 
-const writeToJSONFile = async (passed_i_JSONFile: number) => {
-	const stream = createWriteStream(`${passed_i_JSONFile}.json`)
-	stream.write('{"set":[')
-	let i = 0
-	while (i < _2M) {
-		stream.write(JSON.stringify(Ledger()))
+const main = () => {
+	let iHotel = 1
+	while (iHotel < TARGET_HOTELS) {
+		// 1 JSON file per Hotel, so just one writeStream
+		// streams are important when writing to large files
+		const stream = createWriteStream(
+			'~/work/data/dgraph/scripts/load-test/json/' +
+				NameString(SubjectType.Hotel, iHotel) +
+				'.json'
+		)
+		stream.on('open', () => {
+			stream.write('{"set":[')
+			stream.write(JSON.stringify(Hotel(iHotel)) + ',')
+			let iRoom = 1
+			while (iRoom < TARGET_ROOMS_PER_HOTEL) {
+				stream.write(JSON.stringify(Room(iRoom, iHotel)) + ',')
+				let iLedger = 1
+				while (iLedger < TARGET_LEDGERS_PER_ROOM) {
+					stream.write(JSON.stringify(Ledger(iLedger, iHotel, iRoom)) + ',')
+					iLedger++
+				}
+				iRoom++
+			}
+			// just to make sure we don't have a comma at the end of the list, we put in an extra 1 ledger per Hotel
+			stream.write(
+				JSON.stringify(
+					Ledger(TARGET_LEDGERS_PER_ROOM + 1, iHotel, TARGET_ROOMS_PER_HOTEL)
+				)
+			)
+			stream.write(']}')
+		})
+		iHotel++
 	}
-	stream.write(']}')
-}
-
-// while i_entry is less than 200M
-while (i_ledger < _200M) {
-	writeToJSONFile(i_JSONFile)
-	i_ledger += _2M
-	i_JSONFile++
-	console.log('i_entry:', i_ledger)
-	console.log('i_JSONFile:', i_JSONFile)
 }

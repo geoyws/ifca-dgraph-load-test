@@ -64,13 +64,13 @@ const Ledger = (i: number, iHotel: number, iRoom: number) => ({
 const _200M = 200000000
 const _1M = 1000000
 
-const TARGET_HOTELS = 1 //200
+const TARGET_HOTELS = 200 // 200 you can lower this for testing
 
 const TARGET_ROOMS_PER_HOTEL = 100
 const TARGET_ROOMS = TARGET_HOTELS * TARGET_ROOMS_PER_HOTEL // 20K
 
 const TARGET_LEDGERS = _200M
-const TARGET_LEDGERS_PER_ROOM = 1000 //TARGET_LEDGERS / TARGET_ROOMS // 10K
+const TARGET_LEDGERS_PER_ROOM = TARGET_LEDGERS / TARGET_ROOMS // 10K, you can lower this for testing
 
 //const MAX_ENTRIES_PER_JSON_FILE = _1M // basically 1 JSON file per Hotel
 

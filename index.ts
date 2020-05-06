@@ -145,7 +145,7 @@ const main = async () => {
 
 process.stdin.resume();//so the program will not close instantly
 
-function exitHandler(options, exitCode) {
+function exitHandler(options: any, exitCode: any) {
     Object.values(writeStreamReg).map(v => v.finish())
     if (options.cleanup) console.log('clean');
     if (exitCode || exitCode === 0) console.log(exitCode);

@@ -2,12 +2,13 @@
   "name": "dgraph-load-test",
   "version": "1.0.0",
   "description": "Testing Dgraph's bulk loading performance.",
-  "main": "dist/index.js",
+  "main": "index.ts",
   "repository": "https://gitlab.com/ifca-root/dgraph-load-test.git",
   "author": "<geoyws@gmail.com>",
   "license": "MIT",
   "private": true,
   "dependencies": {
-    "@types/node": "^13.13.5"
+    "@types/node": "^13.13.5",
+    "typescript": "^3.8.3"
   }
 }

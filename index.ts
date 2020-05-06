@@ -108,6 +108,7 @@ const main = async () => {
 		const writeable = new Writeable(
 			createWriteStream(
 				//'/root/work/data/dgraph/scripts/load-test/json/' +
+        'dist/' +
 				NameString(SubjectType.Hotel, iHotel) + '.json', { encoding: 'utf8', flags: 'a' }
 			)
 		)

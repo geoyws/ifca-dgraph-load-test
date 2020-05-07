@@ -1,3 +1,4 @@
+import 'dotenv'
 import { WriteStream, createWriteStream } from 'fs'
 
 import { finished } from 'stream'
@@ -93,12 +94,12 @@ const PATH = 'dist/'
 const _200M = 200000000
 // const _1M = 1000000
 
-const TARGET_HOTELS = 200 // 200 you can lower this for testing
+const TARGET_HOTELS = process.env?.TARGET_HOTELS ? +process.env.TARGET_HOTELS : 200
 
-const TARGET_ROOMS_PER_HOTEL = 100
+const TARGET_ROOMS_PER_HOTEL = process.env?.TARGET_ROOMS_PER_HOTEL ? +process.env.TARGET_ROOMS_PER_HOTEL : 100
 const TARGET_ROOMS = TARGET_HOTELS * TARGET_ROOMS_PER_HOTEL // 20K
 
-const TARGET_LEDGERS = _200M
+const TARGET_LEDGERS = process.env?.TARGET_LEDGERS ? +process.env.TARGET_LEDGERS : _200M
 const TARGET_LEDGERS_PER_ROOM = TARGET_LEDGERS / TARGET_ROOMS // 10K, you can lower this for testing
 
 //const MAX_ENTRIES_PER_JSON_FILE = _1M // basically 1 JSON file per Hotel

@@ -8,6 +8,7 @@
   "license": "MIT",
   "private": true,
   "dependencies": {
+    "@types/dotenv": "^8.2.0",
     "@types/node": "^13.13.5",
     "dotenv": "^8.2.0",
     "typescript": "^3.8.3"

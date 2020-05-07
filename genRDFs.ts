@@ -150,7 +150,6 @@ const main = async () => {
         flags: "a",
       })
     );
-    await writeable.write("{\nset\n{");
     await writeable.write(Hotel(iHotel));
 
     let iRoom = 1;
@@ -162,10 +161,9 @@ const main = async () => {
         //console.log('iLedger:', iLedger)
         iLedger++;
       }
-      console.log("iRoom:", iRoom);
+      console.log("iRoom:", Room);
       iRoom++;
     }
-    await writeable.write("\n}\n}");
     await writeable.finish();
 
     console.log("iHotel:", iHotel);

@@ -161,7 +161,7 @@ const main = async () => {
         //console.log('iLedger:', iLedger)
         iLedger++;
       }
-      console.log("iRoom:", Room);
+      console.log("iRoom:", iRoom);
       iRoom++;
     }
     await writeable.finish();

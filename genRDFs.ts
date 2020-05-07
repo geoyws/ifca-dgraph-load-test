@@ -57,7 +57,7 @@ ${uid} <name> ${NameString(subjectType, i)} .
 // 100 Rooms per Hotel
 const Room = (i: number, iHotel: number) => {
   const subjectType = SubjectType.Room;
-  const uid = UID(subjectType, i);
+  const uid = UID(subjectType, i) + UID(SubjectType.Hotel, iHotel);
   return `
 ${uid} <dgraph.type> ${quote(subjectType)} .
 ${uid} <hotel> ${UID(SubjectType.Hotel, iHotel)} .
@@ -75,7 +75,7 @@ ${uid} <name> ${NameString(subjectType, i)} .
 // 200M / (200 * 100) = 10K Ledgers per Room
 const Ledger = (i: number, iHotel: number, iRoom: number) => {
   const subjectType = SubjectType.Ledger;
-  const uid = UID(subjectType, i);
+  const uid = UID(subjectType, i) + UID(SubjectType.Room, iRoom) + UID(SubjectType.Hotel, iHotel);
   return `
 ${uid} <dgraph.type> ${quote(subjectType)} .
 ${uid} <hotel> ${UID(SubjectType.Hotel, iHotel)} .

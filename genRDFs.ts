@@ -88,7 +88,7 @@ ${uid} <amount> ${randomAmount()} .
 // 	amount: randomAmount(),
 // })
 
-// '/root/work/data/dgraph/scripts/load-test/json/'
+// '/root/work/data/dgraph/scripts/load-test/rdf/'
 const PATH = 'dist/'
 // to save us from typos
 const _200M = 200000000
@@ -102,7 +102,7 @@ const TARGET_ROOMS = TARGET_HOTELS * TARGET_ROOMS_PER_HOTEL // 20K
 const TARGET_LEDGERS = process.env?.TARGET_LEDGERS ? +process.env.TARGET_LEDGERS : _200M
 const TARGET_LEDGERS_PER_ROOM = TARGET_LEDGERS / TARGET_ROOMS // 10K, you can lower this for testing
 
-//const MAX_ENTRIES_PER_JSON_FILE = _1M // basically 1 JSON file per Hotel
+//const MAX_ENTRIES_PER_RDF_FILE = _1M // basically 1 RDF file per Hotel
 
 // https://2ality.com/2019/11/nodejs-streams-async-iteration.html#writing-to-writable-streams
 
@@ -132,12 +132,12 @@ class Writeable {
 const main = async () => {
 	let iHotel = 1
 	while (iHotel <= TARGET_HOTELS) {
-		// 1 JSON file per Hotel, so just one writeStream
+    // 1 RDF file per Hotel, so just one writeStream
 		// streams are important when writing to large files
 		const writeable = new Writeable(
 			createWriteStream(
         PATH +
-				NameString(SubjectType.Hotel, iHotel) + '.json', { encoding: 'utf8', flags: 'a' }
+				NameString(SubjectType.Hotel, iHotel) + '.rdf', { encoding: 'utf8', flags: 'a' }
 			)
 		)
 		await writeable.write('{ set {')

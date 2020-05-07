@@ -141,7 +141,7 @@ const main = async () => {
     // 1 RDF file per Hotel, so just one writeStream
     // streams are important when writing to large files
     const writeable = new Writeable(
-      createWriteStream(PATH + NameString(SubjectType.Hotel, iHotel) + ".rdf", {
+      createWriteStream(PATH + SubjectType.Hotel + iHotel + ".rdf", {
         encoding: "utf8",
         flags: "a",
       })

@@ -141,15 +141,15 @@ const main = async () => {
 			)
 		)
 		await writeable.write('{ set {')
-		await writeable.write(JSON.stringify(Hotel(iHotel)) + ',')
+		await writeable.write(JSON.stringify(Hotel(iHotel)))
 
 		let iRoom = 1
 		while (iRoom <= TARGET_ROOMS_PER_HOTEL) {
-			await writeable.write(JSON.stringify(Room(iRoom, iHotel)) + ',')
+			await writeable.write(JSON.stringify(Room(iRoom, iHotel)))
 			let iLedger = 1
 			while (iLedger <= TARGET_LEDGERS_PER_ROOM) {
 				await writeable.write(
-					JSON.stringify(Ledger(iLedger, iHotel, iRoom)) + ','
+					JSON.stringify(Ledger(iLedger, iHotel, iRoom))
 				)
 				//console.log('iLedger:', iLedger)
 				iLedger++
@@ -157,12 +157,6 @@ const main = async () => {
 			console.log('iRoom:', iRoom)
 			iRoom++
 		}
-		// just to make sure we don't have a comma at the end of the list, we put in an extra 1 ledger per Hotel
-		await writeable.write(
-			JSON.stringify(
-				Ledger(TARGET_LEDGERS_PER_ROOM + 1, iHotel, TARGET_ROOMS_PER_HOTEL)
-			)
-		)
 		await writeable.write('} }')
     await writeable.finish()
 

@@ -16,7 +16,7 @@ const randomAmount = () => randomNumber(100, 10000)
 const randomDate = (start: Date, end: Date) => {
 	return new Date(
 		start.getTime() + Math.random() * (end.getTime() - start.getTime())
-	)
+	).toISOString()
 }
 
 const randomRelevantDate = () =>
@@ -31,15 +31,15 @@ const UIDString = (type: string, i: number) => '_:' + type + i
 
 const NameString = (type: string, i: number) => type + i
 
-const PredicateString = (predicate: string) => '<' + predicate + '>'
+// const PredicateString = (predicate: string) => '<' + predicate + '>'
 
 // 200 Hotels altogether
 const Hotel = (i: number) => {
   const subjectType = SubjectType.Hotel
   const uid = UIDString(subjectType, i)
   return `
-${uid} <name> ${NameString(subjectType, i)}
 ${uid} <dgraph.type> ${subjectType}
+${uid} <name> ${NameString(subjectType, i)}
 `
 }
 
@@ -54,8 +54,9 @@ const Room = (i: number, iHotel: number) => {
   const subjectType = SubjectType.Room
   const uid = UIDString(subjectType, i)
   return `
-${uid} <name> ${NameString(subjectType, i)}
 ${uid} <dgraph.type> ${subjectType}
+${uid} <hotel> ${UIDString(SubjectType.Hotel, iHotel)}
+${uid} <name> ${NameString(subjectType, i)}
 `
 } 
 // ({
@@ -67,17 +68,30 @@ ${uid} <dgraph.type> ${subjectType}
 // 200M Ledgers altogether
 // 200M / 200 = 1M Ledgers per Hotel
 // 200M / (200 * 100) = 10K Ledgers per Room
-const Ledger = (i: number, iHotel: number, iRoom: number) => ({
-	uid: UIDString(SubjectType.Ledger, i),
-	hotel: UIDString(SubjectType.Hotel, iHotel),
-	room: UIDString(SubjectType.Room, iRoom),
-	createdTs: randomRelevantDate(),
-	amount: randomAmount(),
-})
+const Ledger = (i: number, iHotel: number, iRoom: number) => {
+  const subjectType = SubjectType.Ledger
+  const uid = UIDString(subjectType, i)
+  return `
+${uid} <dgraph.type> ${subjectType} .
+${uid} <hotel> ${UIDString(SubjectType.Hotel, iHotel)} .
+${uid} <room> ${UIDString(SubjectType.Room, iRoom)} .
+${uid} <createdTs> ${randomRelevantDate()} .
+${uid} <amount> ${randomAmount()} .
+`
+}
+// ({
+// 	uid: UIDString(SubjectType.Ledger, i),
+// 	hotel: UIDString(SubjectType.Hotel, iHotel),
+// 	room: UIDString(SubjectType.Room, iRoom),
+// 	createdTs: randomRelevantDate(),
+// 	amount: randomAmount(),
+// })
 
+// '/root/work/data/dgraph/scripts/load-test/json/'
+const PATH = 'dist/'
 // to save us from typos
 const _200M = 200000000
-const _1M = 1000000
+// const _1M = 1000000
 
 const TARGET_HOTELS = 200 // 200 you can lower this for testing
 
@@ -119,11 +133,9 @@ const main = async () => {
 	while (iHotel <= TARGET_HOTELS) {
 		// 1 JSON file per Hotel, so just one writeStream
 		// streams are important when writing to large files
-		console.log(__dirname)
 		const writeable = new Writeable(
 			createWriteStream(
-				//'/root/work/data/dgraph/scripts/load-test/json/' +
-        'dist/' +
+        PATH +
 				NameString(SubjectType.Hotel, iHotel) + '.json', { encoding: 'utf8', flags: 'a' }
 			)
 		)

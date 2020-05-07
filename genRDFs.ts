@@ -141,15 +141,15 @@ const main = async () => {
 			)
 		)
 		await writeable.write('{ set {')
-		await writeable.write(JSON.stringify(Hotel(iHotel)))
+		await writeable.write(Hotel(iHotel))
 
 		let iRoom = 1
 		while (iRoom <= TARGET_ROOMS_PER_HOTEL) {
-			await writeable.write(JSON.stringify(Room(iRoom, iHotel)))
+			await writeable.write(Room(iRoom, iHotel))
 			let iLedger = 1
 			while (iLedger <= TARGET_LEDGERS_PER_ROOM) {
 				await writeable.write(
-					JSON.stringify(Ledger(iLedger, iHotel, iRoom))
+					Ledger(iLedger, iHotel, iRoom)
 				)
 				//console.log('iLedger:', iLedger)
 				iLedger++

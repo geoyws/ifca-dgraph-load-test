@@ -7,7 +7,7 @@ import { promisify } from "util";
 
 const pFinished = promisify(finished);
 
-const quote = (str: string) => `"${str}"`
+const quote = (str: string) => `"${str}"`;
 
 const randomNumber = (min: number, max: number): number => {
   // min and max included
@@ -23,7 +23,9 @@ const randomDate = (start: Date, end: Date) => {
 };
 
 const randomRelevantDateString = () =>
-  quote(randomDate(new Date("1995-01-01T08:00:00+08:00"), new Date()).toISOString());
+  quote(
+    randomDate(new Date("1995-01-01T08:00:00+08:00"), new Date()).toISOString()
+  );
 
 enum SubjectType {
   Hotel = "Hotel",
@@ -148,7 +150,7 @@ const main = async () => {
         flags: "a",
       })
     );
-    await writeable.write("{ set {");
+    await writeable.write("{\nset\n{");
     await writeable.write(Hotel(iHotel));
 
     let iRoom = 1;
@@ -163,7 +165,7 @@ const main = async () => {
       console.log("iRoom:", iRoom);
       iRoom++;
     }
-    await writeable.write("} }");
+    await writeable.write("\n}\n}");
     await writeable.finish();
 
     console.log("iHotel:", iHotel);

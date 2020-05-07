@@ -7,21 +7,23 @@ import { promisify } from "util";
 
 const pFinished = promisify(finished);
 
+const quote = (str: string) => `"${str}"`
+
 const randomNumber = (min: number, max: number): number => {
   // min and max included
   return Math.floor(Math.random() * (max - min + 1) + min);
 };
 
-const randomAmountString = () => `"${randomNumber(100, 10000)}"`;
+const randomAmountString = () => quote(randomNumber(100, 10000).toString());
 
 const randomDate = (start: Date, end: Date) => {
   return new Date(
     start.getTime() + Math.random() * (end.getTime() - start.getTime())
-  ).toISOString();
+  );
 };
 
 const randomRelevantDateString = () =>
-  `"${randomDate(new Date("1995-01-01T08:00:00+08:00"), new Date())}"`;
+  quote(randomDate(new Date("1995-01-01T08:00:00+08:00"), new Date()).toISOString());
 
 enum SubjectType {
   Hotel = "Hotel",
@@ -39,7 +41,7 @@ const Hotel = (i: number) => {
   const subjectType = SubjectType.Hotel;
   const uid = UID(subjectType, i);
   return `
-${uid} <dgraph.type> ${subjectType} .
+${uid} <dgraph.type> ${quote(subjectType)} .
 ${uid} <name> ${NameString(subjectType, i)} .
 `;
 };
@@ -55,7 +57,7 @@ const Room = (i: number, iHotel: number) => {
   const subjectType = SubjectType.Room;
   const uid = UID(subjectType, i);
   return `
-${uid} <dgraph.type> ${subjectType} .
+${uid} <dgraph.type> ${quote(subjectType)} .
 ${uid} <hotel> ${UID(SubjectType.Hotel, iHotel)} .
 ${uid} <name> ${NameString(subjectType, i)} .
 `;
@@ -73,7 +75,7 @@ const Ledger = (i: number, iHotel: number, iRoom: number) => {
   const subjectType = SubjectType.Ledger;
   const uid = UID(subjectType, i);
   return `
-${uid} <dgraph.type> ${subjectType} .
+${uid} <dgraph.type> ${quote(subjectType)} .
 ${uid} <hotel> ${UID(SubjectType.Hotel, iHotel)} .
 ${uid} <room> ${UID(SubjectType.Room, iRoom)} .
 ${uid} <createdTs> ${randomRelevantDateString()} .

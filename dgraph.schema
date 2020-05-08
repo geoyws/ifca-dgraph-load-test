@@ -15,7 +15,7 @@ type Ledger {
 }
 
 name: string @index(exact, term) .
-hotel: uid .
-room: uid .
+hotel: uid @reverse .
+room: uid @reverse .
 createdTs: datetime @index(hour) .
 amount: int @index(int) .

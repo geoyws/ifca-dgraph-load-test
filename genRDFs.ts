@@ -100,17 +100,25 @@ const _200M = 200000000;
 
 const TARGET_HOTELS = process.env?.TARGET_HOTELS
   ? +process.env.TARGET_HOTELS
-  : 200;
+  : 100;
 
 const TARGET_ROOMS_PER_HOTEL = process.env?.TARGET_ROOMS_PER_HOTEL
   ? +process.env.TARGET_ROOMS_PER_HOTEL
-  : 100;
-const TARGET_ROOMS = TARGET_HOTELS * TARGET_ROOMS_PER_HOTEL; // 20K
+  : 1000;
+const TARGET_ROOMS = TARGET_HOTELS * TARGET_ROOMS_PER_HOTEL; // 100K
 
 const TARGET_LEDGERS = process.env?.TARGET_LEDGERS
   ? +process.env.TARGET_LEDGERS
   : _200M;
-const TARGET_LEDGERS_PER_ROOM = TARGET_LEDGERS / TARGET_ROOMS; // 10K, you can lower this for testing
+const TARGET_LEDGERS_PER_ROOM = TARGET_LEDGERS / TARGET_ROOMS; // 2K, you can lower this for testing
+
+console.log(JSON.stringify({
+  TARGET_HOTELS,
+  TARGET_ROOMS_PER_HOTEL,
+  TARGET_ROOMS,
+  TARGET_LEDGERS,
+  TARGET_LEDGERS_PER_ROOM
+}, null, 2))
 
 //const MAX_ENTRIES_PER_RDF_FILE = _1M // basically 1 RDF file per Hotel
 

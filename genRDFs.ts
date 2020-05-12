@@ -1,10 +1,21 @@
-import "dotenv";
+import { Command  } from 'commander'
 import { WriteStream, createWriteStream } from "fs";
 
 import { finished } from "stream";
 import { once } from "events";
 import { promisify } from "util";
 
+const program = new Command()
+program
+  .version('2020.05')
+  .option('-i, --index', 'Starting index for Hotels. E.g. `-i 40` generation would start from Hotel40.')
+  .option('-h, --hotels', 'Number of Hotels to generate. E.g. `-h 20` would generate 20 Hotels.')
+  .option('-r, --rooms', 'Number of Rooms per Hotel to generate. E.g. `-r 1000` would generate 1K Rooms per Hotel.') 
+  .option('-l, --ledgers', 'Number of Ledgers per Room to generate. E.g. `-l 2000` would generate 2K Ledgers per Room.') 
+
+/**
+ * Helpers
+ */
 const pFinished = promisify(finished);
 
 const quote = (str: string) => `"${str}"`;
@@ -37,6 +48,10 @@ const UID = (type: string, i: number) => "_:" + type + i;
 const NameString = (type: string, i: number) => `"${type}${i}"`;
 
 // const PredicateString = (predicate: string) => '<' + predicate + '>'
+
+/**
+ * End of Helpers
+ */
 
 // 200 Hotels altogether
 const Hotel = (i: number) => {
@@ -92,39 +107,9 @@ ${uid} <amount> ${randomAmountString()} .
 // 	amount: randomAmount(),
 // })
 
-// '/root/work/data/dgraph/scripts/load-test/rdf/'
-const PATH = "dist/";
-// to save us from typos
-const _200M = 200000000;
-// const _1M = 1000000
-
-const TARGET_HOTELS = process.env?.TARGET_HOTELS
-  ? +process.env.TARGET_HOTELS
-  : 100;
-
-const TARGET_ROOMS_PER_HOTEL = process.env?.TARGET_ROOMS_PER_HOTEL
-  ? +process.env.TARGET_ROOMS_PER_HOTEL
-  : 1000;
-const TARGET_ROOMS = TARGET_HOTELS * TARGET_ROOMS_PER_HOTEL; // 100K
-
-const TARGET_LEDGERS = process.env?.TARGET_LEDGERS
-  ? +process.env.TARGET_LEDGERS
-  : _200M;
-const TARGET_LEDGERS_PER_ROOM = TARGET_LEDGERS / TARGET_ROOMS; // 2K, you can lower this for testing
-
-console.log(JSON.stringify({
-  TARGET_HOTELS,
-  TARGET_ROOMS_PER_HOTEL,
-  TARGET_ROOMS,
-  TARGET_LEDGERS,
-  TARGET_LEDGERS_PER_ROOM
-}, null, 2))
-
-//const MAX_ENTRIES_PER_RDF_FILE = _1M // basically 1 RDF file per Hotel
-
 // https://2ality.com/2019/11/nodejs-streams-async-iteration.html#writing-to-writable-streams
 
-const writeStreamReg: Record<string, Writeable> = {};
+const writeStreamReg: Record<string, Writeable> = {}; // regi
 
 class Writeable {
   symbol: symbol = Symbol();
@@ -148,6 +133,8 @@ class Writeable {
 }
 
 const main = async () => {
+  const TARGET_HOTELS = process.argv[2]
+
   let iHotel = 1;
   while (iHotel <= TARGET_HOTELS) {
     // 1 RDF file per Hotel, so just one writeStream
